@@ -7,6 +7,7 @@ class Trainer():
             y: pandas Series
         """
         self.pipeline = None
+        self.set_pipeline()
         self.X = X
         self.y = y
 
@@ -42,9 +43,9 @@ class Trainer():
 
         self.pipeline = pipe
 
-    def run(self, X_train, y_train):
+    def run(self):
         """set and train the pipeline"""
-        self.pipeline = self.pipeline.fit(X_train, y_train)
+        self.pipeline = self.pipeline.fit(self.X, self.y)
 
     def evaluate(self, X_test, y_test):
         """evaluates the pipeline on df_test and return the RMSE"""
@@ -77,7 +78,10 @@ if __name__ == "__main__":
 
     # train
     new_trainer.set_pipeline()
-    new_trainer.run(X_train, y_train)
+    self.X = X_train
+    self.y = y_train
+
+    new_trainer.run()
 
     # evaluate
     rmse = new_trainer.evaluate(X_test, y_test)
