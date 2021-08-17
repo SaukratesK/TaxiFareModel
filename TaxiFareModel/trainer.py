@@ -1,4 +1,6 @@
 import mlflow
+import joblib
+
 from  mlflow.tracking import MlflowClient
 from memoized_property import memoized_property
 
@@ -22,14 +24,12 @@ class Trainer():
         self.X = X
         self.y = y
         self.experiment_name = "[FR] [Nantes] [saukratesk] TaxiFareModel v1"
+        self.mlflow_create_run()
 
 
     def set_pipeline(self):
         """defines the pipeline as a class attribute"""
         '''returns a pipelined model'''
-
-
-
         dist_pipe = Pipeline([
             ('dist_trans', DistanceTransformer()),
             ('stdscaler', StandardScaler())
@@ -54,7 +54,9 @@ class Trainer():
 
     def run(self):
         """set and train the pipeline"""
-        self.pipeline = self.pipeline.fit(self.X, self.y)
+        self.pipeline.fit(self.X, self.y)
+        experiment_id = self.mlflow_experiment_id
+        print(f"experiment URL: https://mlflow.lewagon.co/#/experiments/{experiment_id}")
 
     def evaluate(self, X_test, y_test):
         """evaluates the pipeline on df_test and return the RMSE"""
@@ -68,6 +70,10 @@ class Trainer():
         print(rmse)
         return rmse
 
+    def save_model(self):
+        """ Save the trained model into a model.joblib file """
+        joblib.dump(self.pipeline, 'model.joblib')
+
     @memoized_property
     def mlflow_client(self):
         mlflow.set_tracking_uri(self.MLFLOW_URI)
@@ -80,15 +86,15 @@ class Trainer():
         except BaseException:
             return self.mlflow_client.get_experiment_by_name(self.experiment_name).experiment_id
 
-    @memoized_property
-    def mlflow_run(self):
-        return self.mlflow_client.create_run(self.mlflow_experiment_id)
+    def mlflow_create_run(self):
+        self.mlfow_run = self.mlflow_client.create_run(self.mlflow_experiment_id)
 
     def mlflow_log_param(self, key, value):
-        self.mlflow_client.log_param(self.mlflow_run.info.run_id, key, value)
+        self.mlflow_client.log_param(self.mlfow_run.info.run_id, key, value)
 
     def mlflow_log_metric(self, key, value):
-        self.mlflow_client.log_metric(self.mlflow_run.info.run_id, key, value)
+        self.mlflow_client.log_metric(self.mlfow_run.info.run_id, key, value)
+
 
 
 from TaxiFareModel.data import get_data, clean_data
@@ -120,3 +126,6 @@ if __name__ == "__main__":
     # evaluate
     rmse = new_trainer.evaluate(X_test, y_test)
     print(f'RMSE du modèle : {rmse}')
+
+    #save model
+    new_trainer.save_model()

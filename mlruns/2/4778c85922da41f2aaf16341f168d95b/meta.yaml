@@ -1,0 +1,15 @@
+artifact_uri: file:///home/borisb/code/SaukratesK/TaxiFareModel/mlruns/2/4778c85922da41f2aaf16341f168d95b/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '2'
+lifecycle_stage: active
+name: ''
+run_id: 4778c85922da41f2aaf16341f168d95b
+run_uuid: 4778c85922da41f2aaf16341f168d95b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1629204796871
+status: 1
+tags: []
+user_id: unknown
